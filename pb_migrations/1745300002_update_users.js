@@ -7,8 +7,8 @@ migrate((app) => {
   const collection = app.findCollectionByNameOrId("users")
 
   // Reglas de acceso
-  collection.listRule   = "id = @request.auth.id"
-  collection.viewRule   = "id = @request.auth.id"
+  collection.listRule = "id = @request.auth.id"
+  collection.viewRule = "id = @request.auth.id"
   collection.createRule = ""
   collection.updateRule = "id = @request.auth.id"
   collection.deleteRule = "id = @request.auth.id"
@@ -35,11 +35,11 @@ migrate((app) => {
   }
 
   // Duraciones de tokens
-  collection.authToken          = { duration: 604800 }
+  collection.authToken = { duration: 604800 }
   collection.passwordResetToken = { duration: 1800 }
-  collection.emailChangeToken   = { duration: 1800 }
-  collection.verificationToken  = { duration: 259200 }
-  collection.fileToken          = { duration: 120 }
+  collection.emailChangeToken = { duration: 1800 }
+  collection.verificationToken = { duration: 259200 }
+  collection.fileToken = { duration: 120 }
 
   // Templates de email (body NO puede estar vacio)
   collection.verificationTemplate = {
@@ -79,16 +79,6 @@ migrate((app) => {
   collection.fields.add(new Field({
     id: "rune_usr_phone",
     name: "phone",
-    type: "text",
-    required: false,
-    presentable: false,
-    system: false,
-    hidden: false,
-    min: null, max: null, pattern: ""
-  }))
-  collection.fields.add(new Field({
-    id: "rune_usr_avtar",
-    name: "avatar",
     type: "text",
     required: false,
     presentable: false,
