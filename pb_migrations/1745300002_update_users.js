@@ -1,8 +1,9 @@
 /// <reference path="../pb_data/types.d.ts" />
-// 2/9 — Users: modifica la coleccion existente, agrega name, phone, avatar, role
+// 2/9 — Users: modifica la coleccion existente, agrega username, phone, avatar, role
+// NOTA: "name" ya existe en users por default en PocketBase — no se agrega
+// NOTA: identityFields solo usa "email" — "username" requiere que el campo exista primero
 
 migrate((app) => {
-  // PocketBase ya crea 'users' al iniciar — la buscamos y modificamos
   const collection = app.findCollectionByNameOrId("users")
 
   // Reglas de acceso
@@ -13,7 +14,10 @@ migrate((app) => {
   collection.deleteRule = "id = @request.auth.id"
 
   // Metodos de autenticacion
-  collection.passwordAuth = { enabled: true, identityFields: ["email", "username"] }
+  // identityFields solo incluye campos que YA existen en users antes de esta migración
+  // "email" existe por default. "username" lo agregamos abajo, pero PocketBase
+  // valida identityFields ANTES de guardar los campos nuevos, así que solo usamos email.
+  collection.passwordAuth = { enabled: true, identityFields: ["email"] }
   collection.oauth2 = {
     enabled: false,
     mappedFields: { id: "", name: "", username: "", avatarURL: "" },
@@ -58,13 +62,16 @@ migrate((app) => {
     }
   }
 
-  // Agregar campos extra
+  // Agregar solo campos que NO existen por default en users:
+  // ❌ "name"  → ya existe, NO agregar
+  // ✅ "username", "phone", "avatar", "role" → nuevos
+
   collection.fields.add(new Field({
-    id: "rune_usr_name1",
-    name: "name",
+    id: "rune_usr_uname",
+    name: "username",
     type: "text",
     required: false,
-    presentable: true,
+    presentable: false,
     system: false,
     hidden: false,
     min: null, max: null, pattern: ""
@@ -105,9 +112,9 @@ migrate((app) => {
   app.save(collection)
 }, (app) => {
   const collection = app.findCollectionByNameOrId("users")
-  const toRemove = ["name", "phone", "avatar", "role"]
-  for (const name of toRemove) {
-    const field = collection.fields.getByName(name)
+  const toRemove = ["username", "phone", "avatar", "role"]
+  for (const fieldName of toRemove) {
+    const field = collection.fields.getByName(fieldName)
     if (field) collection.fields.remove(field)
   }
   app.save(collection)
